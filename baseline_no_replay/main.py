@@ -81,16 +81,28 @@ if __name__ == '__main__':
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-    acc_per_task = []
+    task_loaders = []
+    acc_matrix = []
 
     for task_id in range(5):
-        print(f"\nTraining for task {task_id + 1}")
+        print(f"\nTraining on Task {task_id + 1}")
         train_data, test_data, digits = get_split_mnist(task_id)
-        train_loader = DataLoader(train_data, batch_size=64, shuffle=True)
-        test_loader = DataLoader(test_data, batch_size = 64)
+        train_loader = DataLoader(train_data, batch_size = 64, shuffle=True)
+        test_loader = DataLoader(test_data, batch_size=64)
 
+        #save test loader for future evaluation
+        task_loaders.append((test_loader, digits))
+
+        #Train on current task
         train_task(model, train_loader, criterion, optimizer, device)
-        acc = evaluate(model, test_loader, device)
-        acc_per_task.append(acc)
-        print(f"Accuracy on Task {task_id + 1} ({digits}): {acc:.4f}")
-    print("\nTask-wise accuracy: ", acc_per_task)
+
+        #Evaluate on all tasks learned so far
+        task_accs = []
+        for i, (loader, digit_pair) in enumerate(task_loaders):
+            acc = evaluate(model, loader, device)
+            task_accs.append(acc)
+            print(f"Accuracy on Task {i+1} {digit_pair}: {acc:.4f}")
+
+        acc_matrix.append(task_accs)
+    
+        print("Task accuracies: ", task_accs)
