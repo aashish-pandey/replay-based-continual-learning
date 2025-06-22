@@ -5,6 +5,8 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 import random
+import matplotlib.pyplot as plt
+import os
 
 
 #set seeds
@@ -84,6 +86,9 @@ if __name__ == '__main__':
     task_loaders = []
     acc_matrix = []
 
+    #Folders to save plots and logs
+    os.makedirs("results", exist_ok=True)
+
     for task_id in range(5):
         print(f"\nTraining on Task {task_id + 1}")
         train_data, test_data, digits = get_split_mnist(task_id)
@@ -106,3 +111,30 @@ if __name__ == '__main__':
         acc_matrix.append(task_accs)
     
         print("Task accuracies: ", task_accs)
+
+    #acc_matrix has inhomogenous shape that is each row has one more column than previous cause we train for one new task
+    #Lets make it square
+    max_len = max(len(row) for row in acc_matrix)
+    padded_matrix = [row + [np.nan] * (max_len - len(row)) for row in acc_matrix]
+
+
+    #Save accuracy matrix as csv
+    np.savetxt("results/acc_matrix.csv", np.array(padded_matrix), delimiter=",")
+
+    #Convert to numpy for easy plotting
+    acc_array = np.array(padded_matrix)
+
+    #plot: accuracy per task over time
+    plt.figure(figsize=(10, 6))
+    for task_id in range(acc_array.shape[1]):
+        plt.plot(range(1, acc_array.shape[0]+1), acc_array[:, task_id], marker='o',  label = f"Task {task_id + 1}")
+    plt.title("Task wise accuracy over time")
+    plt.xlabel("Training step (Task ID)")
+    plt.ylabel("Accuracy")
+
+    plt.ylim(0, 1.05)
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("results/accuracy_plot.png")
+    plt.close()
