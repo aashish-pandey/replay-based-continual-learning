@@ -85,6 +85,10 @@ As the model learns each new task, it saves a few examples into a replay buffer.
     cd baseline_no_replay
     python main.py
 
+4. Run Random replay
+    ```bash
+    cd random_replay
+    python main.py
 -----
 
 ## Author
