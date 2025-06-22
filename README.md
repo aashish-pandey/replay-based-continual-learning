@@ -72,6 +72,22 @@ As the model learns each new task, it saves a few examples into a replay buffer.
 ## Accuracy Over Time
 ![Replay Accuracy](/random_replay/results/accuracy_plot.png)
 
+## Episodic Replay - Continual Learning on SplitMNIST
+
+This experiment implements class-balanced episodic memory as a continual learning strategy using a Multi-Layer Perceptron (MLP) on the SplitMNIST benchmark. 
+This method improves ove random replay by allocating a fixed number of memory slot per class, ensuring more balanced and informative memory usage.
+
+## Results: BAseline vs Random Vs Episodic Replay
+| Task | No Replay | Random Replay | Episodic Replay |
+|------|-----------|---------------|-----------------|
+| 1    | 24.3%     | 26.0%         | 31.5%           |
+| 2    | 67.3%     | 66.7%         | 67.8%           |
+| 3    | 16.9%     | 19.1%         | 19.1%           |
+| 4    | 84.3%     | 94.6%         | 94.6%           |
+| 5    | 99.2%     | 99.5%         | 99.5            |
+
+## Accuracy Over Time
+![Episodic Accuracy](/episodic_replay/results/accuracy_plot.png)
 
 ## How to Run
 
