@@ -38,16 +38,39 @@ In this setup, we train the MLP task-by-task without any memory of previous task
 
 | Task ID | Accuracy after Final Task |
 |---------|---------------------------|
-| Task 1  | 24%                       |
-| Task 2  | 67%                       |
-| Task 3  | 17%                       |
-| Task 4  | 84%                       |
-| Task 5  | 99%                       |
+| Task 1  | 24.3%                     |
+| Task 2  | 67.3%                     |
+| Task 3  | 16.9%                     |
+| Task 4  | 84.3%                     |
+| Task 5  | 99.2%                     |
 
 
 ### Accuracy Plot:
 
 ![Task-wise Accuracy Plot](/baseline_no_replay/results/accuracy_plot.png)
+
+
+## Random Replay: Continual Learning on SplitMNIST
+This experiment uses a Replay Buffer to mitigate catastrophic forgetting in a continual leaning setup with 5 SplitMNIST tasks.
+
+-----
+
+## What's Random Replay?
+As the model learns each new task, it saves a few examples into a replay buffer. during training on new tasks, it replays previous samples to retain prior knowledge.
+
+-----
+
+## Results: Baseline VS Replay
+| Task | No Replay | Random Replay |
+|------|-----------|---------------|
+| 1    | 24.3%     | 26.0%         |
+| 2    | 67.3%     | 66.7%         |
+| 3    | 16.9%     | 19.1%         |
+| 4    | 84.3%     | 94.6%         |
+| 5    | 99.2%     | 99.5%         |
+
+## Accuracy Over Time
+![Replay Accuracy](/random_replay/results/accuracy_plot.png)
 
 
 ## How to Run
