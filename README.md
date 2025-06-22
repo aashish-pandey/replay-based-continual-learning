@@ -47,7 +47,7 @@ In this setup, we train the MLP task-by-task without any memory of previous task
 
 ### Accuracy Plot:
 
-![Task-wise Accuracy Plot](results/accuracy_plot.png)
+![Task-wise Accuracy Plot](/baseline_no_replay/results/accuracy_plot.png)
 
 
 ## How to Run
@@ -58,6 +58,7 @@ In this setup, we train the MLP task-by-task without any memory of previous task
     ./setup.sh
 
 3. Run baseline
+    ```bash
     cd baseline_no_replay
     python main.py
 
