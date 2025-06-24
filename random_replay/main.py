@@ -7,6 +7,13 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 import os
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--buffer_size', type=int, default=1200)
+parser.add_argument('--replay_ratio', type=float, default=0.5)
+parser.add_argument('--start_replay_task', type=int, default=1)
+args = parser.parse_args()
 
 
 #set seeds
@@ -67,7 +74,7 @@ class SimpleMLP(nn.Module):
         return x
     
 #Training Loop per task
-def train_task(model, train_loader, criterion, optimizer, device, replay_buffer):
+def train_task(model, train_loader, criterion, optimizer, device, replay_buffer, task_id, replay_ratio=0.5, start_replay_task = 1):
     model.train()
     for epoch in range(5):
         for x, labels in train_loader:
@@ -78,14 +85,25 @@ def train_task(model, train_loader, criterion, optimizer, device, replay_buffer)
             for i in range(x.size(0)):
                 replay_buffer.add(x[i], labels[i])
             
-            #Sample from buffer and combine
-            if len(replay_buffer.buffer) > 0:
-                x_replay, y_replay = replay_buffer.sample(batch_size=32)
+            #Start replay only after specified task
+            if task_id >= start_replay_task and len(replay_buffer.buffer) > 0:
+                replay_batch_size = int(replay_ratio * x.size(0))
+                replay_batch_size = min(replay_batch_size, len(replay_buffer.buffer))
+
+                x_replay, y_replay = replay_buffer.sample(batch_soize = replay_batch_size)
                 x_replay, y_replay = x_replay.to(device), y_replay.to(device)
 
-                #Mix replayed and current batch
-                x = torch.cat([x, x_replay])
-                labels = torch.cat([labels, y_replay])
+                #Adjust current batch size to mantain total batch size
+                current_batch_size = x.size(0)
+                keep_size = current_batch_size - replay_batch_size
+
+                if keep_size > 0:
+                    x = x[:keep_size]
+                    labels = labels[:keep_size]
+                
+                #Mix replay and current
+                x = torch.cat([x, x_replay], dim=0)
+                labels = torch.cat([labels, y_replay], dim = 0)
 
             #Normal Training
             optimizer.zero_grad()
@@ -137,7 +155,7 @@ if __name__ == '__main__':
         task_loaders.append((test_loader, digits))
 
         #Train on current task
-        train_task(model, train_loader, criterion, optimizer, device, replay_buffer)
+        train_task(model, train_loader, criterion, optimizer, device, replay_buffer, task_id, replay_ratio=0.5, start_replay_task=1)
 
         #Evaluate on all tasks learned so far
         task_accs = []
